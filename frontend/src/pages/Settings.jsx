@@ -621,8 +621,6 @@ export default function Settings() {
               </div>
             )}
 
-
-
             {activeSetting === "Appearance" && (
               <div className="max-w-[896px]">
                 <div className="mb-8">
