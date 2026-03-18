@@ -97,10 +97,24 @@ const changePassword = async (req, res) => {
       return res.status(401).json({ message: "Not authorized" });
     }
 
+    // validate required fields before proceeding
+    if (!currentPassword || !newPassword) {
+      return res
+        .status(400)
+        .json({ message: "Current password and new password are required" });
+    }
+
     const user = await User.findByPk(req.user.id);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
+    }
+
+    // ensure user has a local password set (e.g., not an OAuth-only account)
+    if (!user.password) {
+      return res
+        .status(400)
+        .json({ message: "Password is not set for this account" });
     }
 
     // verify current password
