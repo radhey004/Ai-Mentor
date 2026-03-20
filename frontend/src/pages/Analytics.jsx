@@ -1,10 +1,3 @@
-import React, { useState, useEffect } from 'react'
-import Header from '../components/Header'
-import Sidebar from '../components/Sidebar'
-import { useAuth } from '../context/AuthContext'
-import { useSidebar } from '../context/SidebarContext'
-import { useTranslation } from 'react-i18next'
-
 const Analytics = () => {
   const { t } = useTranslation();
   const { sidebarOpen, setSidebarOpen, sidebarCollapsed, setSidebarCollapsed } = useSidebar();
@@ -460,5 +453,4 @@ const Analytics = () => {
     </div>
   );
 }
-
-export default Analytics
+export default Analytics;
