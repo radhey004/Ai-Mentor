@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { ChevronRight, LayoutGrid, BookOpen, Users, GraduationCap, Wallet, LogOut, Settings, X } from "lucide-react";
 
 const courses = [
   ["UI/UX Masterclass", "Design", "Rs 89.00", "1,204", "Published"],
@@ -34,11 +35,11 @@ const transactions = [
 ];
 
 const navItems = [
-  ["dashboard", "Dashboard"],
-  ["courses", "Courses"],
-  ["users", "Users"],
-  ["enrollments", "Enrollments"],
-  ["payments", "Payments"],
+  ["dashboard", "Dashboard", LayoutGrid],
+  ["courses", "Courses", BookOpen],
+  ["users", "Users", Users],
+  ["enrollments", "Enrollments", GraduationCap],
+  ["payments", "Payments", Wallet],
 ];
 
 function AdminPage() {
@@ -47,6 +48,18 @@ function AdminPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [profilePopupOpen, setProfilePopupOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const currentUser = useMemo(() => {
+    try {
+      const raw = localStorage.getItem("user");
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }, []);
+  const displayName = currentUser?.name || currentUser?.email?.split("@")[0] || "Admin";
+  const avatarUrl =
+    currentUser?.avatar_url ||
+    `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(displayName)}`;
 
   const title = useMemo(() => {
     switch (page) {
@@ -82,6 +95,7 @@ function AdminPage() {
       {showLogoutConfirm && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
           <div className="bg-card border border-border/50 rounded-4xl shadow-2xl p-8 w-80 text-center">
+            <LogOut className="w-10 h-10 text-red-500 mx-auto mb-4" />
             <h3 className="text-sm font-black uppercase tracking-tight text-main mb-2">Logout</h3>
             <p className="text-xs text-muted mb-6">Are you sure you want to logout?</p>
             <div className="flex gap-3">
@@ -122,7 +136,7 @@ function AdminPage() {
             className="lg:hidden w-9 h-9 rounded-xl border border-border bg-card"
             type="button"
           >
-            X
+            <X className="w-4 h-4 mx-auto" />
           </button>
         </div>
 
@@ -131,14 +145,12 @@ function AdminPage() {
           className="hidden lg:flex absolute -right-5 top-8 w-10 h-10 bg-card border border-border rounded-xl items-center justify-center hover:bg-teal-500 hover:text-white transition-all shadow-xl z-80"
           type="button"
         >
-          <span className={`transition-transform duration-500 ${sidebarCollapsed ? "" : "rotate-180"}`}>
-            {'>'}
-          </span>
+          <ChevronRight className={`w-5 h-5 transition-transform duration-500 ${sidebarCollapsed ? "" : "rotate-180"}`} />
         </button>
 
         <nav className={`mt-8 px-4 h-[calc(100vh-16rem)] scrollbar-hide ${sidebarCollapsed ? "overflow-visible" : "overflow-y-auto"}`}>
           <div className="space-y-3">
-            {navItems.map(([id, label]) => {
+            {navItems.map(([id, label, Icon]) => {
               const isActive = page === id;
               return (
                 <div
@@ -148,8 +160,8 @@ function AdminPage() {
                     sidebarCollapsed ? "justify-center" : ""
                   } ${isActive ? "bg-teal-500 text-white shadow-xl shadow-teal-500/30" : "text-muted hover:bg-canvas-alt"}`}
                 >
-                  <div className={`w-5 h-5 shrink-0 rounded-md flex items-center justify-center text-[10px] font-black ${isActive ? "bg-white/20" : "bg-border/60 text-main"}`}>
-                    {label[0]}
+                  <div className={`w-5 h-5 shrink-0 rounded-md flex items-center justify-center ${isActive ? "text-white" : "text-main"}`}>
+                    <Icon className="w-4 h-4" />
                   </div>
                   {!sidebarCollapsed && (
                     <span className={`ml-4 text-sm font-black uppercase tracking-tight ${isActive ? "text-white" : ""}`}>
@@ -175,22 +187,22 @@ function AdminPage() {
               }`}
             >
               <div className="p-6 border-b border-border/50 bg-linear-to-tr from-teal-500/10 to-transparent text-center">
-                <div className="w-16 h-16 rounded-3xl mx-auto mb-3 shadow-2xl border-2 border-card bg-teal-500 text-white text-xl font-black flex items-center justify-center">
-                  A
-                </div>
-                <h4 className="text-xs font-black text-main uppercase tracking-tighter">Admin</h4>
+                <img src={avatarUrl} className="w-16 h-16 rounded-3xl mx-auto mb-3 shadow-2xl border-2 border-card" alt="User" />
+                <h4 className="text-xs font-black text-main uppercase tracking-tighter">{displayName}</h4>
               </div>
               <div className="p-2">
                 <button
                   onClick={() => setProfilePopupOpen(false)}
                   className="flex items-center w-full px-4 py-4 text-[10px] font-black uppercase text-main hover:bg-teal-500 hover:text-white rounded-3xl transition-all"
                 >
+                  <Settings className="w-4 h-4 mr-3" />
                   Settings
                 </button>
                 <button
                   onClick={() => setShowLogoutConfirm(true)}
                   className="flex items-center w-full px-4 py-4 text-[10px] font-black uppercase text-red-500 hover:bg-red-500 hover:text-white rounded-3xl transition-all mt-1"
                 >
+                  <LogOut className="w-4 h-4 mr-3" />
                   Logout
                 </button>
               </div>
@@ -204,12 +216,10 @@ function AdminPage() {
             }`}
           >
             <div className={`bg-card dark:bg-slate-900 rounded-[1.9rem] transition-all duration-300 ${sidebarCollapsed ? "p-1" : "p-4 flex items-center"}`}>
-              <div className={`${sidebarCollapsed ? "w-12 h-12" : "w-10 h-10"} rounded-[1.2rem] shadow-md border-2 border-white dark:border-slate-800 transition-all bg-teal-500 text-white font-black flex items-center justify-center`}>
-                A
-              </div>
+              <img src={avatarUrl} className={`${sidebarCollapsed ? "w-12 h-12" : "w-10 h-10"} rounded-[1.2rem] shadow-md border-2 border-white dark:border-slate-800 transition-all`} alt="Avatar" />
               {!sidebarCollapsed && (
                 <div className="ml-3 flex-1 min-w-0">
-                  <div className="text-[11px] font-black text-main truncate uppercase tracking-tight">Admin</div>
+                  <div className="text-[11px] font-black text-main truncate uppercase tracking-tight">{displayName}</div>
                   <div className="text-[9px] text-muted font-bold opacity-50 uppercase tracking-widest mt-0.5">Account</div>
                 </div>
               )}
