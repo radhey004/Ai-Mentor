@@ -8,11 +8,10 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
+// Support both Neon (production) and local PostgreSQL (development)
 const connectionString = process.env.NEON_DATABASE_URL;
 
-if (!connectionString) {
-  throw new Error("NEON_DATABASE_URL environment variable is not set");
-}
+let sequelize;
 
 const sequelize = new Sequelize(connectionString, {
   dialect: "postgres",

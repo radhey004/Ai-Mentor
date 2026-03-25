@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import Header from "../components/Header";
-import Sidebar from "../components/Sidebar";
 import { Star, Bookmark, X, BookOpen, Search } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useSidebar } from "../context/SidebarContext";
@@ -19,6 +17,7 @@ const CoursesPage = () => {
   const [exploreCourses, setExploreCourses] = useState([]);
   const [myCourses, setMyCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [showEnrollPopup, setShowEnrollPopup] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
@@ -137,7 +136,7 @@ const CoursesPage = () => {
           }`}
       >
         {/* ══════ HERO ══════ */}
-        <div className="relative overflow-hidden bg-linear-to-br from-teal-700 via-teal-600 to-teal-800 pt-16 pb-12 px-4 sm:px-8">
+        <div className="relative overflow-hidden bg-gradient-to-br from-teal-700 via-teal-600 to-teal-800 pt-16 pb-12 px-4 sm:px-8">
           {/* grid pattern overlay */}
           <div
             className="absolute inset-0 opacity-10"
@@ -164,13 +163,13 @@ const CoursesPage = () => {
                 </p>
               </div>
             </div>
-            {/* Tabs */}
-            <div className="flex justify-center gap-3">
+            {/* Tabs + Search */}
+            <div className="flex items-center justify-start gap-3">
               <button
                 onClick={() => setActiveTab("my-courses")}
                 className={`flex items-center gap-2 px-6 py-2.5 rounded-full font-semibold text-sm transition-all ${activeTab === "my-courses"
-                    ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/30"
-                    : "bg-black/30 text-white hover:bg-black/40"
+                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/30"
+                  : "bg-black/30 text-white hover:bg-black/40"
                   }`}
               >
                 <BookOpen className="w-4 h-4" />
@@ -179,13 +178,25 @@ const CoursesPage = () => {
               <button
                 onClick={() => setActiveTab("explore")}
                 className={`flex items-center gap-2 px-6 py-2.5 rounded-full font-semibold text-sm transition-all ${activeTab === "explore"
-                    ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/30"
-                    : "bg-black/30 text-white hover:bg-black/40"
+                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/30"
+                  : "bg-black/30 text-white hover:bg-black/40"
                   }`}
               >
                 <Search className="w-4 h-4" />
                 {t("courses.explore")}
               </button>
+
+              {/* Search Bar */}
+              <div className="relative group max-w-xs w-60 hidden md:block">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 group-focus-within:text-teal-300 transition-colors w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder={t("header.search_placeholder")}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-black/30 border border-white/20 rounded-full text-sm text-white placeholder-white/50 focus:ring-2 focus:ring-teal-400/30 focus:border-teal-400 transition-all outline-none"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -197,12 +208,12 @@ const CoursesPage = () => {
             {activeTab === "my-courses" && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {myCourses.length === 0 && (
-                  <p className="text-slate-500 col-span-full text-center">
+                  <p className="text-slate-500">
                     {t("courses.not_enrolled")}
                   </p>
                 )}
 
-                {myCourses.map((course) => {
+                {myCourses.filter((course) => course.title.toLowerCase().includes(searchQuery.toLowerCase())).map((course) => {
                   const purchasedEntry = user?.purchasedCourses?.find(
                     (c) => Number(c.courseId) === Number(course.id)
                   );
@@ -284,8 +295,8 @@ const CoursesPage = () => {
                             setShowExploreFilter(false);
                           }}
                           className={`block w-full text-left px-4 py-2 rounded hover:bg-teal-500 hover:text-white capitalize ${selectedExploreCategory === cat
-                              ? "font-bold text-teal-600"
-                              : ""
+                            ? "font-bold text-teal-600"
+                            : ""
                             }`}
                         >
                           {cat}
@@ -367,49 +378,49 @@ const CoursesPage = () => {
             )}
           </div>
         </main>
-      </div>
 
-      {/* ================= ENROLL POPUP ================= */}
-      {showEnrollPopup && selectedCourse && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white w-full max-w-md rounded-2xl p-6 relative">
-            <button
-              onClick={() => setShowEnrollPopup(false)}
-              className="absolute top-4 right-4"
-            >
-              <X />
-            </button>
 
-            <img
-              src={selectedCourse.image}
-              alt={selectedCourse.title}
-              className="w-full h-40 object-cover rounded-xl mb-4"
-            />
+        {/* ================= ENROLL POPUP ================= */}
+        {showEnrollPopup && selectedCourse && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+            <div className="bg-white w-full max-w-md rounded-2xl p-6 relative">
+              <button
+                onClick={() => setShowEnrollPopup(false)}
+                className="absolute top-4 right-4"
+              >
+                <X />
+              </button>
 
-            <h2 className="text-xl font-bold">{selectedCourse.title}</h2>
+              <img
+                src={selectedCourse.image}
+                alt={selectedCourse.title}
+                className="w-full h-40 object-cover rounded-xl mb-4"
+              />
 
-            <p className="text-sm text-slate-500 mt-1">
-              {selectedCourse.category} • {selectedCourse.level}
-            </p>
+              <h2 className="text-xl font-bold">{selectedCourse.title}</h2>
 
-            <div className="flex justify-between items-center mt-4">
-              <span className="line-through text-slate-400">
-                {selectedCourse.price}
-              </span>
-              <span className="text-lg font-bold text-green-600">₹0</span>
+              <p className="text-sm text-slate-500 mt-1">
+                {selectedCourse.category} • {selectedCourse.level}
+              </p>
+
+              <div className="flex justify-between items-center mt-4">
+                <span className="line-through text-slate-400">
+                  {selectedCourse.price}
+                </span>
+                <span className="text-lg font-bold text-green-600">₹0</span>
+              </div>
+
+              <button
+                onClick={handleEnroll}
+                className="w-full mt-6 py-3 rounded-xl bg-[#2DD4BF] text-white font-semibold"
+              >
+                {t("courses.confirm_enrollment")}
+              </button>
             </div>
-
-            <button
-              onClick={handleEnroll}
-              className="w-full mt-6 py-3 rounded-xl bg-[#2DD4BF] text-white font-semibold"
-            >
-              {t("courses.confirm_enrollment")}
-            </button>
           </div>
-        </div>
-      )}
-    </div>
-  );
+        )}
+      </>
+      );
 };
 
-export default CoursesPage;
+      export default CoursesPage;
