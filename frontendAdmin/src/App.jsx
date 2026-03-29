@@ -15,7 +15,7 @@ function getAuthUser() {
 
 function RequireAdmin({ children }) {
   const { token, user } = getAuthUser();
-  if (!token || user?.role !== "admin") {
+  if (!token || user?.role !== "admin" && user?.role !== "superAdmin") {
     return <Navigate to="/login" replace />;
   }
   return children;
@@ -23,7 +23,7 @@ function RequireAdmin({ children }) {
 
 function LoginRoute() {
   const { token, user } = getAuthUser();
-  if (token && user?.role === "admin") {
+  if (token && user?.role === "admin" || user?.role === "superAdmin") {
     return <Navigate to="/dashboard" replace />;
   }
   return <LoginPage />;
