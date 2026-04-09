@@ -11,10 +11,12 @@ import {
   Camera,
   Eye,
   EyeOff,
+x  UserX,
+  Sparkles
   Contact,
-  UserX,
 } from "lucide-react";
 import axios from "axios";
+import Preferences from "../components/Preferences";
 import { useTheme } from "../context/ThemeContext";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
@@ -23,19 +25,11 @@ import i18n from "../i18n/index.js";
 const NAV_KEYS = [
   { icon: User, key: "profile", labelKey: "settings.nav.profile" },
   { icon: Bell, key: "notifications", labelKey: "settings.nav.notifications" },
-  {
-    icon: Shield,
-    key: "password_security",
-    labelKey: "settings.nav.password_security",
-  },
+  { icon: Shield, key: "password_security", labelKey: "settings.nav.password_security" },
+  { icon: Sparkles, key: "preferences", labelKey: "preferences.nav_title" },
   { icon: Palette, key: "appearance", labelKey: "settings.nav.appearance" },
   { icon: Globe, key: "language", labelKey: "settings.nav.language" },
-  { icon: Contact, key: "contactus", labelKey: "settings.nav.contactus" },
-  {
-    icon: UserX,
-    key: "delete_account",
-    labelKey: "settings.nav.delete_account",
-  },
+  { icon: UserX , key: "delete_account", labelKey: "settings.nav.delete_account" },
 ];
 
 export default function Settings() {
@@ -326,6 +320,57 @@ export default function Settings() {
                   {t("settings.profile.subtitle")}
                 </p>
               </div>
+            </nav>
+          </aside>
+
+          {/* Mobile Settings Tab Bar — visible only on small screens */}
+          <div className="lg:hidden flex overflow-x-auto gap-2 px-4 pt-3 pb-2 no-scrollbar">
+            {NAV_KEYS.map((item) => {
+              const IconComponent = item.icon;
+              return (
+                <button
+                  onClick={() => setActiveSetting(item.key)}
+                  key={item.key}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                    activeSetting === item.key
+                      ? "bg-teal-50 dark:bg-teal-900/20 text-[#00BEA5] border border-[#00BEA5]"
+                      : "bg-card text-muted border border-border hover:bg-canvas-alt"
+                  }`}
+                >
+                  <IconComponent className="w-4 h-4 text-[#00BEA5]" />
+                  <span>{t(item.labelKey)}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Main Content */}
+          <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 lg:mt-5 min-w-0">
+            {activeSetting === "preferences" && (
+              <div className="w-full">
+                <div className="mb-8">
+                  <h1 className="text-xl sm:text-2xl md:text-[30px] font-bold text-main font-[Inter] mb-2">
+                    {t("preferences.nav_title")}
+                  </h1>
+                  <p className="text-sm sm:text-[16px] text-muted font-[Inter]">
+                    {t("preferences.settings_modal_subtitle")}
+                  </p>
+                </div>
+                <Preferences mode="settings" onSuccess={() => toast.success(t("preferences.save_success"))} />
+              </div>
+            )}
+
+            {activeSetting === "profile" && (
+              <div className="w-full">
+                {/* Header */}
+                <div className="mb-8">
+                  <h1 className="text-xl sm:text-2xl md:text-[30px] font-bold text-main font-[Inter] mb-2">
+                    {t("settings.profile.title")}
+                  </h1>
+                  <p className="text-sm sm:text-[16px] text-muted font-[Inter]">
+                    {t("settings.profile.subtitle")}
+                  </p>
+                </div>
 
               {/* Settings Card */}
               <div className="bg-card rounded-2xl sm:rounded-[24px] shadow-[0_4px_6px_0_rgba(0,0,0,0.10),0_10px_15px_0_rgba(0,0,0,0.10)] p-4 sm:p-6 md:p-8">
