@@ -14,12 +14,11 @@ import {
 } from "../service/notificationService";
 import toast from "react-hot-toast";
 
-const Header = ({ searchQuery = "", onSearchChange }) => {
+const Header = () => {
   const { t } = useTranslation();
   const { sidebarOpen, setSidebarOpen } = useSidebar();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [internalSearchQuery, setInternalSearchQuery] = useState("");
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
@@ -67,8 +66,6 @@ const Header = ({ searchQuery = "", onSearchChange }) => {
   }, [loadNotifications]);
 
   const unreadCount = notifications.filter(n => n.unread).length;
-  const effectiveSearchQuery =
-    typeof onSearchChange === "function" ? searchQuery : internalSearchQuery;
 
   // ReferenceError se bachne ke liye displayName ko sabse upar define karein
   const displayName = user?.name || user?.email?.split('@')[0] || "User";
@@ -113,6 +110,7 @@ const Header = ({ searchQuery = "", onSearchChange }) => {
       setNotifications(prev => prev.map(n => ({ ...n, unread: false })));
       toast.success("Marked all as read");
     } catch (error) {
+      console.log(error);
       toast.error("Failed to mark all as read");
     }
   };
@@ -132,6 +130,7 @@ const Header = ({ searchQuery = "", onSearchChange }) => {
       setNotifications([]);
       toast.success("Notifications cleared");
     } catch (error) {
+      console.log(error);
       toast.error("Failed to clear notifications");
     }
   };
@@ -245,9 +244,17 @@ const Header = ({ searchQuery = "", onSearchChange }) => {
               >
                 <div className="relative">
                   <img
-                    src={`https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(displayName)}`}
-                    className="w-9 h-9 rounded-xl shadow-md border border-border/50 group-hover:border-teal-500 transition-all"
+                    src={user?.avatar_url || ( (user?.isGoogleUser || !!user?.googleId) ? `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(`${user?.firstName || ""} ${user?.lastName || ""}`.trim() || user?.name || displayName)}` : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E") }
+                    className="w-9 h-9 rounded-xl shadow-md border border-border/50 group-hover:border-teal-500 transition-all object-cover"
                     alt="Avatar"
+                    onError={(e) => {
+                      if (user?.isGoogleUser || !!user?.googleId) {
+                        const seed = encodeURIComponent(`${user?.firstName || ""} ${user?.lastName || ""}`.trim() || user?.name || displayName);
+                        e.target.src = `https://api.dicebear.com/8.x/initials/svg?seed=${seed}`;
+                      } else {
+                        e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E";
+                      }
+                    }}
                   />
                   <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 border-2 border-card rounded-full" />
                 </div>
@@ -260,9 +267,17 @@ const Header = ({ searchQuery = "", onSearchChange }) => {
                   <div className="p-6 bg-gradient-to-br from-teal-500/10 via-blue-500/5 to-transparent border-b border-border/50">
                     <div className="flex items-center space-x-4 mb-4">
                       <img
-                        src={`https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(displayName)}`}
-                        className="w-14 h-14 rounded-2xl shadow-xl border-2 border-white dark:border-slate-800"
+                        src={user?.avatar_url || ( (user?.isGoogleUser || !!user?.googleId) ? `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(`${user?.firstName || ""} ${user?.lastName || ""}`.trim() || user?.name || displayName)}` : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E") }
+                        className="w-14 h-14 rounded-2xl shadow-xl border-2 border-white dark:border-slate-800 object-cover"
                         alt="User"
+                        onError={(e) => {
+                          if (user?.isGoogleUser || !!user?.googleId) {
+                            const seed = encodeURIComponent(`${user?.firstName || ""} ${user?.lastName || ""}`.trim() || user?.name || displayName);
+                            e.target.src = `https://api.dicebear.com/8.x/initials/svg?seed=${seed}`;
+                          } else {
+                            e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E";
+                          }
+                        }}
                       />
                       <div className="min-w-0">
                         <h4 className="text-sm font-black text-main truncate leading-tight uppercase">{user?.name || displayName}</h4>
