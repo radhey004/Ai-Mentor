@@ -13,6 +13,7 @@ import {
     Lesson,
     LessonContent,
 } from "../models/modelAssociations.js";
+import AIVideo from "../models/AIVideo.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,7 +34,8 @@ const uploadImageToCloudinary = async (imagePath, courseId) => {
 
         const result = await cloudinary.uploader.upload(fullPath, {
             folder: "courses",
-            public_id: `courses/${Date.now()}-${courseId}`,
+            public_id: `course-${courseId}`,
+            overwrite: true,
         });
 
         return result.secure_url;
@@ -57,13 +59,14 @@ async function seedCourses() {
 
         // await sequelize.sync({ force: true });
         await sequelize.sync(); // ensures tables exist
+        // clear non-FK dependent tables
+        await AIVideo.truncate({ restartIdentity: true });
         await Course.truncate({
             cascade: true,
             restartIdentity: true,
         });
 
-        // clear non-FK dependent tables
-        await AIVideo.truncate({ restartIdentity: true });
+
         console.log("🧹 DB reset done\n");
 
         const coursesData = JSON.parse(fs.readFileSync(coursesPath, "utf8"));
