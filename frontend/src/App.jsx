@@ -45,9 +45,6 @@ const App = () => {
         {/* Redirect from root */}
         <Route path="/" element={<RootRedirect />} />
 
-        {/* Complete Profile Route */}
-        <Route path="/complete-profile" element={<CompleteProfilePage />} />
-
         {/* Public routes that logged-in users should not see */}
         <Route element={<PublicRoutes />}>
           <Route path="/login" element={<LoginPage />} />
@@ -58,6 +55,8 @@ const App = () => {
 
         {/* Protected Routes with shared Header + Sidebar layout */}
         <Route element={<ProtectedRoute />}>
+          {/* Complete Profile Route */}
+          <Route path="/complete-profile" element={<CompleteProfilePage />} />
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/analytics" element={<Analytics />} />
