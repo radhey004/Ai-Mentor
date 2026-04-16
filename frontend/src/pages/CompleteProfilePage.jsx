@@ -47,10 +47,11 @@ const CompleteProfilePage = () => {
   // 1. New Google Users: Show all fields (Names, Password, Bio, Avatar) for verification
   // 2. New Email Users: Only show missing setup (Avatar, Bio) as they already set names/password
   // 3. Existing Users: Only show whatever is missing in the database
-  const showNameFields = (isGoogleUser && user?.isNewUser) || !user?.firstName || !user?.lastName;
+  const showNameFields =
+    (isGoogleUser && user?.isNewUser) || !user?.firstName?.trim() || !user?.lastName?.trim();
   const showPasswordField = isGoogleUser && (user?.isNewUser || !user?.hasPassword);
-  const showBioField = user?.isNewUser || !user?.bio;
-  const showAvatarField = user?.isNewUser || !user?.avatar_url;
+  const showBioField = user?.isNewUser || !user?.bio?.trim();
+  const showAvatarField = user?.isNewUser || !user?.avatar_url?.trim();
 
   /* ─── Form state ─── */
   const [firstName, setFirstName] = useState(user?.firstName || "");
