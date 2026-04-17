@@ -110,7 +110,9 @@ export default function AdminPage() {
   };
 
   useEffect(() => {
-    if (token && user?.role === "admin" || user?.role === "superAdmin") fetchAll();
+    if (token && (user?.role === "admin" || user?.role === "superAdmin")) {
+      fetchAll();
+    }
   }, []);
 
   useEffect(() => {
@@ -200,7 +202,7 @@ export default function AdminPage() {
 
   const deleteUser = async (userId) => {
     if (!window.confirm("Delete this user?")) return;
-    try { setBusy(true); await callApi(`/api/admin/users/${userId}`, { method: "DELETE" }); notify("User deleted"); await fetchAll(); }
+    try { setBusy(true); await callApi(`/admin/users/${userId}`, { method: "DELETE" }); notify("User deleted"); await fetchAll(); }
     catch (e) { setError(e.message); } finally { setBusy(false); }
   };
 

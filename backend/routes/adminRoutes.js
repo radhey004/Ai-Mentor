@@ -11,6 +11,12 @@ import {
   getAllUsers
 } from "../controllers/adminController.js";
 import { protectAdmin, superAdminOnly } from "../middleware/adminAuthMiddleware.js";
+import { protect, admin } from "../middleware/authMiddleware.js";
+import {
+  listUsersForAdmin,
+  updateUserRoleByAdmin,
+  deleteUserByAdmin,
+} from "../controllers/userController.js";
 
 const router = express.Router();
 
@@ -23,5 +29,10 @@ router.get("/enrollments", protectAdmin, getAllEnrollments);
 router.get("/payments", protectAdmin, getAllPayments);
 router.get("/courses", protectAdmin, getAllCourses);
 router.get("/users", protectAdmin, getAllUsers);
+
+// User admin management via user-role based auth (shared with course/community admin APIs)
+router.get("/users", protect, admin, listUsersForAdmin);
+router.put("/users/:id/role", protect, admin, updateUserRoleByAdmin);
+router.delete("/users/:id", protect, admin, deleteUserByAdmin);
 
 export default router;
