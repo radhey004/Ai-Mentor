@@ -557,6 +557,7 @@ const updateUserRoleByAdmin = async (req, res) => {
     const { id } = req.params;
     const { role } = req.body;
     const allowedRoles = ["user", "admin", "superAdmin"];
+    const requesterRole = req.user?.role;
 
     if (!allowedRoles.includes(role)) {
       return res.status(400).json({ message: "Invalid role value" });
@@ -570,6 +571,15 @@ const updateUserRoleByAdmin = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    if (requesterRole !== "superAdmin") {
+      if (role === "superAdmin") {
+        return res.status(403).json({ message: "Only superAdmin can assign superAdmin role" });
+      }
+
+      if (["admin", "superAdmin"].includes(targetUser.role)) {
+        return res.status(403).json({ message: "Only superAdmin can modify admin or superAdmin accounts" });
+      }
+    }
     targetUser.role = role;
     await targetUser.save();
 
@@ -596,17 +606,23 @@ const deleteUserByAdmin = async (req, res) => {
       return res.status(403).json({ message: "You cannot delete your own account from admin panel" });
     }
 
-    const targetUser = await User.findByPk(id);
-    if (!targetUser) {
+    await User.sequelize.transaction(async (transaction) => {
+      const targetUser = await User.findByPk(id, { transaction });
+      if (!targetUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      await CommunityPost.destroy({ where: { userId: id }, transaction });
+      await Notifications.destroy({ where: { userId: id }, transaction });
+      await report.destroy({ where: { reporterId: id }, transaction });
+      await targetUser.destroy({ transaction });
+
+      return res.status(200).json({ message: "User deleted successfully" });
+    });
+  } catch (error) {
+    if (error.message === "USER_NOT_FOUND") {
       return res.status(404).json({ message: "User not found" });
     }
-
-    await CommunityPost.destroy({ where: { userId: id } });
-    await Notifications.destroy({ where: { userId: id } });
-    await targetUser.destroy();
-
-    res.status(200).json({ message: "User deleted successfully" });
-  } catch (error) {
     console.error("ADMIN DELETE USER ERROR:", error.message);
     res.status(500).json({ message: "Server error" });
   }
